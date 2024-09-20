@@ -29,7 +29,11 @@ def formulario_create_ciclomes(token, df_ciclomes):
         submit_button = st.form_submit_button("Criar CicloMes")
         
         if submit_button:
-            if nome and ano and investimento and dias and shark and valor_liquido:
+            if nome and ano and investimento and dias:
+                if not shark:
+                    shark = 0.0
+                if not valor_liquido:
+                    valor_liquido = 0.0
                 resposta = api.create_ciclomes(token, ciclomes_data)
                 if "erro" not in resposta:
                     dados_ciclomes = api.get_ciclomeses(token)

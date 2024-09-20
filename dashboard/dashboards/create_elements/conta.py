@@ -34,7 +34,11 @@ def formulario_create_conta(token, df_contas, dados_usuario):
         submit_button = st.form_submit_button("Criar Conta")
         
         if submit_button:
-            if nome and deposito_inicial and saldo_atual and plano and meses and comissao:
+            if nome and plano and meses and comissao:
+                if not deposito_inicial:
+                    deposito_inicial = 0.0
+                if not saldo_atual:
+                    saldo_atual = 0.0
                 resposta = api.create_conta(token, conta_data)
                 if "erro" not in resposta:
                     dados_contas = api.get_contas(token)

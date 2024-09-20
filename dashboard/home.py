@@ -172,7 +172,11 @@ def dashboard_padrao(token, dados_ciclomeses):
 def main():
     token = get_params()
 
-    st.set_page_config(layout="wide")
+    st.set_page_config(
+        page_title="Dashboard",  # Defina o título que aparecerá na aba do navegador
+        page_icon="./assets/logo.png",  # Você pode usar um emoji, URL de uma imagem ou caminho para um arquivo de imagem local
+        layout="wide"
+    )
     video_html = """
     
         <video autoplay muted loop id="myVideo">
@@ -197,6 +201,19 @@ def main():
 
         
         [data-testid="stHeadingWithActionElements"] h1{
+            color: black;
+        }
+        
+        [data-testid="stTable"] {
+            background-color: rgba(255,255,255,0.7);
+            border-radius: 15px;
+            padding-top: 12px;
+            padding-bottom: 0px;
+            box-shadow: 0 4px 6px 0 rgba(0, 0, 0,0.7);
+        }
+        
+        
+        [data-testid="stMarkdownContainer"] {
             color: black;
         }
 

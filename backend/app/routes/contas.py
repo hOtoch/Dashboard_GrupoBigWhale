@@ -52,7 +52,7 @@ def criar_conta():
     dados = request.json
 
     # Validação básica dos campos obrigatórios
-    if not dados.get('deposito_inicial') or not dados.get('saldo_atual') or not dados.get('plano') or not dados.get('meses') or not dados.get('comissao') or not dados.get('nome') or not dados.get('usuario_id'):
+    if not dados.get('plano') or not dados.get('meses') or not dados.get('comissao') or not dados.get('nome') or not dados.get('usuario_id'):
         return jsonify({'erro': 'Necessário dados obrigatórios'}), 400
     
     try:

@@ -2,6 +2,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import Blueprint, request, jsonify
 from ..models import Dia, Usuario,CicloMes, db
 from ..routes.ciclomes import atualizar_ciclomes
+from ..routes.contas import atualizar_todas_contas
 
 dias_bp = Blueprint('dias', __name__)
 
@@ -26,6 +27,8 @@ def editar_dia(id):
         dia.alcancado_dia = dados['alcancado_dia']
         
     atualizar_ciclomes(dia.mes_id)
+    ciclomes = CicloMes.query.get_or_404(dia.mes_id)
+    atualizar_todas_contas(ciclomes)
 
     try:
         db.session.commit()

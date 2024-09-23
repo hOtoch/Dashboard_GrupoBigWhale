@@ -10,8 +10,10 @@ from dotenv import load_dotenv
 from dashboards.dashboard_user import dashboard_user
 from dashboards.dashboard_admin import dashboard_admin
 import base64
+import locale
 
 load_dotenv()
+locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 @st.cache_data
 def get_img_as_base64(file):
@@ -98,16 +100,24 @@ def dashboard_padrao(token, dados_ciclomeses):
 
     # Exibindo as métricas lado a lado
     with col1:
-        st.metric(label="Investimento", value=f"${df_filtrado['investimento'].values[0]:,.2f}")
-        st.metric(label="Alcançado", value=f"${df_filtrado['alcancado'].values[0]:,.2f}")
+        investimento_formatado = locale.format_string("%.2f", df_filtrado['investimento'].values[0], grouping=True)
+        st.metric(label="Investimento", value=f"${investimento_formatado.rstrip('0').rstrip(',')}")
+        
+        alcancado_formatado = locale.format_string("%.2f", df_filtrado['alcancado'].values[0], grouping=True)
+        st.metric(label="Alcançado", value=f"${alcancado_formatado.rstrip('0').rstrip(',')}")
+    
     with col2:
         st.metric(label="Dias", value=df_filtrado['dias'].values[0])
-        st.metric(label="Projeção", value=f"${df_filtrado['projecao'].values[0]:,.2f}")
+        
+        projecao_formatada = locale.format_string("%.2f", df_filtrado['projecao'].values[0], grouping=True)
+        st.metric(label="Projeção", value=f"${projecao_formatada.rstrip('0').rstrip(',')}")
+    
     with col3:
         st.metric(label="Shark - Dia", value=f"{shark_porcentagem}%")
-        porcentagem_alcancada = (df_filtrado['porcentagem_alcancado'].values[0]) * 100
-        st.metric(label="Porcentagem Alcançada", value=f"{porcentagem_alcancada}%")
         
+        porcentagem_alcancada = df_filtrado['porcentagem_alcancado'].values[0] * 100
+        porcentagem_formatada = locale.format_string("%.2f", porcentagem_alcancada, grouping=True)
+        st.metric(label="Porcentagem Alcançada", value=f"{porcentagem_formatada.rstrip('0').rstrip(',')}%")
     try:
         dados_dias = api.get_dias(token, df_filtrado['id'].values[0])
         df_dias = pd.DataFrame(dados_dias)

@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import api
+import locale
+
+locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 def dashboard_user(token):
     
@@ -81,15 +84,32 @@ def dashboard_user(token):
     
     
         with col4:
-            st.metric(label="Depósito Inicial", value=f"${deposito_inicial:,.2f}")
-            st.metric(label="Lucro Liquído", value=f"${lucro_liquido:,.2f}")
-            st.metric(label="Saques", value=f"${saques:,.2f}")
+              
+            deposito_inicial_formatado = locale.format_string("%.2f", deposito_inicial, grouping=True)
+            st.metric(label="Depósito Inicial", value=f"${deposito_inicial_formatado.rstrip('0').rstrip(',')}")
+            
+          
+            lucro_liquido_formatado = locale.format_string("%.2f", lucro_liquido, grouping=True)
+            st.metric(label="Lucro Líquido", value=f"${lucro_liquido_formatado.rstrip('0').rstrip(',')}")
+            
+           
+            saques_formatado = locale.format_string("%.2f", saques, grouping=True)
+            st.metric(label="Saques", value=f"${saques_formatado.rstrip('0').rstrip(',')}")
+                
         with col5:
-            st.metric(label="Saldo Atual", value=f"${saldo_atual:,.2f}")
-            st.metric(label="Operações Finalizadas", value=f"${df_contas['operacoes_finalizadas'].values[0]:,.2f}")
-            st.metric(label="Comissão Fundo", value=f"${comissao_fundo:,.2f}")
+           
+            saldo_atual_formatado = locale.format_string("%.2f", saldo_atual, grouping=True)
+            st.metric(label="Saldo Atual", value=f"${saldo_atual_formatado.rstrip('0').rstrip(',')}")
+            
+           
+            operacoes_finalizadas_formatado = locale.format_string("%.2f", df_contas['operacoes_finalizadas'].values[0], grouping=True)
+            st.metric(label="Operações Finalizadas", value=f"${operacoes_finalizadas_formatado.rstrip('0').rstrip(',')}")
+        
+           
+            comissao_fundo_formatado = locale.format_string("%.2f", comissao_fundo, grouping=True)
+            st.metric(label="Comissão Fundo", value=f"${comissao_fundo_formatado.rstrip('0').rstrip(',')}")
     
-        # Gráfico deposito_inicial e saldo_atual
+       
         fig = px.bar(df_contas, 
                 x='nome', 
                 y=['deposito_inicial', 'saldo_atual'], 

@@ -5,12 +5,26 @@ from ..models import Usuario, db
 from flask_mail import Message
 from datetime import timedelta
 from .. import mail
+import requests
 
 
 def send_reset_email(to, reset_link):
-    msg = Message('Redefinição de Senha',
+    msg = Message('ROI Investimentos - Instruções para Recuperação de Senha',
                   recipients=[to],
-                  body=f'Clique no link para redefinir sua senha: {reset_link}',
+                  body=f'''Olá,
+
+Recebemos uma solicitação para redefinir a senha associada à sua conta na ROI Investimentos.
+
+Para criar uma nova senha, por favor, clique no link abaixo:
+
+{reset_link}
+
+Este link estará disponível por 24 horas. Se você não solicitou a recuperação de senha, pode ignorar esta mensagem com segurança.
+
+Caso tenha qualquer dúvida, nossa equipe de suporte está à disposição para ajudá-lo.
+
+Atenciosamente,
+Equipe ROI Investimentos''',
                   sender='otochdev@gmail.com')
     mail.send(msg)
     

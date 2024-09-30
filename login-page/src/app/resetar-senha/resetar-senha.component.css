@@ -1,3 +1,17 @@
+/* Aplicando box-sizing universal */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Resetando margem e preenchimento */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Estilos para o background de vídeo */
 .video-background {
     position: fixed;
     top: 0;
@@ -14,6 +28,7 @@
     object-fit: cover;
 }
 
+/* Estilos para o container de login */
 .login-container {
     display: flex;
     justify-content: center;
@@ -22,11 +37,12 @@
     z-index: 1;
 }
 
+/* Estilos para o card de login */
 .login-card {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    background-color: rgb(51, 50, 50);
+    background-color: rgb(18,18,18);
     padding: 3rem;
     border-radius: 0.625rem;
     box-shadow: 0.5rem 1rem 2rem rgb(0, 0, 0);
@@ -34,8 +50,10 @@
     max-width: 30rem;
     min-width: 18rem;
     text-align: center;
+    margin: 0 auto;
 }
 
+/* Estilos para a imagem dentro do card de login */
 .login-card__img {
     border-radius: 10px;
     padding: 10px;
@@ -43,6 +61,7 @@
     margin: 0 auto;
 }
 
+/* Cabeçalho da seção de login com linha superior */
 .login-header {
     position: relative;
     margin: 2rem 0;
@@ -53,12 +72,13 @@
     display: block;
     width: 100%;
     height: 3px;
-    background-color: #202299;
+    background-color: #159e5a;
     position: absolute;
     top: -20px;
-    left: 0%;
+    left: 0;
 }
 
+/* Título de login */
 .login-title {
     color: white;
     font-family: "Plus Jakarta Sans", sans-serif;
@@ -66,18 +86,21 @@
     font-size: 2rem;
 }
 
+/* Parágrafo de instruções no card de login */
 .login-paragraph {
     color: rgba(255, 246, 246, 0.5);
     font-family: "Plus Jakarta Sans", sans-serif;
     font-weight: 300;
 }
 
+/* Agrupamento de inputs */
 .input-group {
     margin-bottom: 1.2rem;
     margin-left: -1rem;
     padding: 0 1.2rem;
 }
 
+/* Estilos dos labels */
 label {
     font-family: "Plus Jakarta Sans", sans-serif;
     font-weight: 300;
@@ -87,6 +110,7 @@ label {
     margin-bottom: 0.3rem;
 }
 
+/* Estilos dos inputs */
 input {
     font-family: "Plus Jakarta Sans", sans-serif;
     font-weight: 300;
@@ -95,9 +119,11 @@ input {
     border: 1px solid #484958;
     border-radius: 0.3125rem;
     background-color: #333;
+    box-sizing: border-box;
     color: white;
 }
 
+/* Mensagem de erro */
 .error-message {
     font-family: "Plus Jakarta Sans", sans-serif;
     font-size: 1rem;
@@ -106,6 +132,7 @@ input {
     font-weight: 300;
 }
 
+/* Mensagem de confirmação */
 .confirmation-message {
     font-family: "Plus Jakarta Sans", sans-serif;
     font-size: 1rem;
@@ -114,10 +141,11 @@ input {
     font-weight: 300;
 }
 
+/* Estilos do botão de login */
 .btn-login {
     padding: 0.625rem;
-    background-color: #202299;
-    color: white;
+    background-color: white;
+    color: black;
     border: none;
     border-radius: 0.3125rem;
     cursor: pointer;
@@ -129,9 +157,10 @@ input {
 }
 
 .btn-login:hover {
-    background-color: #ff8a00;
+    background-color: #159e5a;
 }
 
+/* Estilos para o link de voltar ao login */
 .back-to-login {
     margin-top: 1rem;
     display: flex;
@@ -140,10 +169,47 @@ input {
 
 .back-to-login a {
     color: white;
-    text-decoration: underline;
+    text-decoration: none;
     cursor: pointer;
 }
 
 .back-to-login a:hover {
-    color: #ff8a00;
+    color: #159e5a;
+}
+
+/* Estilos responsivos */
+@media (max-width: 600px) {
+    .login-card {
+        padding: 1.5rem;
+        width: 90%;
+        max-width: none;
+        min-width: auto;
+    }
+}
+
+@media (max-width: 400px) {
+    .login-card {
+        padding: 0.5rem;
+        width: 100%;
+    }
+    .login-card__img {
+        width: 80%;
+        max-width: 120px;
+    }
+    .login-title {
+        font-size: 1.2rem;
+    }
+    .login-paragraph, label, input, .btn-login {
+        font-size: 0.9rem;
+    }
+    .btn-login {
+        padding: 0.5rem;
+    }
+    .input-group {
+        margin-bottom: 0.8rem;
+        padding: 0;
+    }
+    input{
+        width: 80%;
+    }
 }

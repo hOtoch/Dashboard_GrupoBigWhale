@@ -40,6 +40,8 @@ def verificar_token(token):
         return None
     
 def side_bar(token,dados_user):
+    st.sidebar.image("assets/logo2.png", use_column_width='always', width=250)
+    st.sidebar.divider()
     st.sidebar.write(":material/account_circle:", dados_user['nome'])
                 
     st.sidebar.title("Menu")
@@ -76,7 +78,73 @@ def get_params():
     token = query_string.get('token')
     return token
 
-def dashboard_padrao(token, dados_ciclomeses):
+def juros_e_alcancado_chart(df_dias):
+    st.header("Juros x Valor Alcançado por Dia")
+    st.subheader("Análise do valor alcançado de cada dia e seu juros projetado")
+    df_dias_indexed = df_dias.set_index('dia_id')
+       
+    df_chart = df_dias_indexed[['juros', 'alcancado_dia']]
+       
+    st.line_chart(df_chart, color=["#7C00FE","#F5004F"],x_label="Dia",y_label="Valor ($)")
+        
+        
+def projecao_alcancada_chart(df_filtrado):
+    st.header("Projeção x Alcançado")
+    st.subheader("Comparação do valor projetado e o valor alcançado até o momento")
+    alcancado = df_filtrado['alcancado'].values[0]
+    restante_para_projecao = df_filtrado['projecao'].values[0] - alcancado
+
+    # Dados para o gráfico de pizza
+    valores = [alcancado, restante_para_projecao]
+    labels = ["Alcançado", "Restante da Projeção"]
+
+    # Criando o gráfico de rosca com aparência 3D
+    fig_pizza_3d = go.Figure(data=[go.Pie(
+        labels=labels,
+        values=valores,
+        hole=0.4,  
+        pull=[0.1, 0],  
+        marker=dict(
+            colors=['#F9E400', '#F5004F'], 
+            line=dict(color='#000000', width=2) 
+        )
+    )])
+
+    # Configuração para simular o efeito 3D no layout
+    fig_pizza_3d.update_traces(textinfo='percent+value', textfont_size=15)
+    fig_pizza_3d.update_layout(
+        annotations=[dict(text='',x=0.5, y=0.5, font_size=20, showarrow=False)],
+        showlegend=True,
+        margin=dict(l=0, r=0, t=30, b=0)
+    )
+
+    st.plotly_chart(fig_pizza_3d)
+        
+        
+def liquido_chart(df_ciclomeses, df_contas):
+    
+    st.header("Valor Líquido por Plano")
+    st.subheader("Qual plano possui maior valor líquido?")
+    df_agrupado = df_contas.groupby('plano')['liquido'].sum().reset_index()
+    
+    df_chart = df_agrupado.set_index('plano')
+    
+    st.bar_chart(df_chart, height=400, horizontal=True, use_container_width=True, color=["#FFAF00"], x_label="Valor ($)", y_label="Plano")
+    
+  
+        
+def investido_chart(df_ciclomeses):
+    st.header("Investimento x Alcançado por Mês")
+    st.subheader("Comparação do valor investido e o valor alcançado por mês")
+    fig = px.area(df_ciclomeses.reset_index(), x='nome', y=['investimento', 'alcancado'],
+              labels={'value': 'Valor ($)', 'variable': 'Métricas'},
+              color_discrete_sequence=['#7C00FE', '#F9E400'])
+    
+    st.plotly_chart(fig)
+
+        
+        
+def dashboard_padrao(token, dados_ciclomeses, dados_contas):
     
     st.title("Dashboard Inicial")
     
@@ -94,90 +162,74 @@ def dashboard_padrao(token, dados_ciclomeses):
 
     df_filtrado = df_ciclomeses[df_ciclomeses['nome'] == mes_selecionado.split(sep=' ')[0]]
     shark_porcentagem = (df_filtrado['shark'].values[0]) * 100
-
-
-    col1, col2, col3 = st.columns([2,1,1])
-
-    # Exibindo as métricas lado a lado
-    with col1:
-        investimento_formatado = locale.format_string("%.2f", df_filtrado['investimento'].values[0], grouping=True)
-        st.metric(label="Investimento", value=f"${investimento_formatado.rstrip('0').rstrip(',')}")
-        
-        alcancado_formatado = locale.format_string("%.2f", df_filtrado['alcancado'].values[0], grouping=True)
-        st.metric(label="Alcançado", value=f"${alcancado_formatado.rstrip('0').rstrip(',')}")
     
-    with col2:
-        st.metric(label="Dias", value=df_filtrado['dias'].values[0])
+    df_contas = pd.DataFrame(dados_contas)
+
+    
+    
+    
+    
+
+            
+            
+    col1,col2,col3 = st.columns([1,1,1])
+    
+    with col1:
+        try:
+            dados_dias = api.get_dias(token, df_filtrado['id'].values[0])
+            df_dias = pd.DataFrame(dados_dias)
+            df_dias = df_dias.sort_values(by="id", ascending=True)
+            df_dias['dia_id'] = range(1, len(df_dias) + 1)
+            juros_e_alcancado_chart(df_dias)
+            
+        except Exception as e:
+            st.error("O mês selecionado não possui dados dos dias relacionados a ele")
+            
+        projecao_alcancada_chart(df_filtrado)
+        
+    with col2: 
+        liquido_chart(df_ciclomeses, df_contas)
+        investido_chart(df_ciclomeses)
+        
+    with col3:
+        mes_atual = df_filtrado['id'].values[0]
+        mes_atual_index = df_ciclomeses[df_ciclomeses['id'] == mes_atual].index[0]
+          
+        
+        if mes_atual_index > 0:  # Verifica se há um mês anterior
+            mes_anterior = df_ciclomeses.iloc[mes_atual_index - 1]
+            delta_investimento = df_filtrado['investimento'].values[0] - mes_anterior['investimento']
+            delta_projecao = df_filtrado['projecao'].values[0] - mes_anterior['projecao']
+            delta_alcancado = df_filtrado['alcancado'].values[0] - mes_anterior['alcancado']
+        else:
+            delta_investimento = delta_projecao = delta_alcancado = 0
+        
+        investimento_formatado = locale.format_string("%.2f", df_filtrado['investimento'].values[0], grouping=True)
+        st.metric(label='Investimento',value=f"${investimento_formatado.rstrip('0').rstrip(',')}", delta=f"${delta_investimento:,.2f}")
         
         projecao_formatada = locale.format_string("%.2f", df_filtrado['projecao'].values[0], grouping=True)
-        st.metric(label="Projeção", value=f"${projecao_formatada.rstrip('0').rstrip(',')}")
+        st.metric(label='Projeção',value=f"${projecao_formatada.rstrip('0').rstrip(',')}", delta=f"${delta_projecao:,.2f}")
     
-    with col3:
-        st.metric(label="Shark - Dia", value=f"{shark_porcentagem}%")
+        alcancado_formatado = locale.format_string("%.2f", df_filtrado['alcancado'].values[0], grouping=True)
+        st.metric(label='Alcançado',value=f"${alcancado_formatado.rstrip('0').rstrip(',')}", delta=f"${delta_alcancado:,.2f}")
         
         porcentagem_alcancada = df_filtrado['porcentagem_alcancado'].values[0] * 100
         porcentagem_formatada = locale.format_string("%.2f", porcentagem_alcancada, grouping=True)
-        st.metric(label="Porcentagem Alcançada", value=f"{porcentagem_formatada.rstrip('0').rstrip(',')}%")
-    try:
-        dados_dias = api.get_dias(token, df_filtrado['id'].values[0])
-        df_dias = pd.DataFrame(dados_dias)
-        df_dias = df_dias.sort_values(by="id", ascending=True)
-        df_dias['dia_id'] = range(1, len(df_dias) + 1)
-        
-        fig = px.line(df_dias, x="dia_id", y=["juros", "alcancado_dia"], 
-                labels={"value": "Valores", "variable": "Métricas"},
-                title="Juros e Valor Alcançado por Dia")
-
-        st.plotly_chart(fig)
-    except Exception as e:
-        st.error("O mês selecionado não possui dados dos dias relacionados a ele")
-        
-    alcancado = df_filtrado['alcancado'].values[0]
-    restante_para_projecao = df_filtrado['projecao'].values[0] - alcancado
-
-    # Dados para o gráfico de pizza
-    valores = [alcancado, restante_para_projecao]
-    labels = ["Alcançado", "Restante da Projeção"]
-
-    # Criando o gráfico de pizza
-    fig_pizza = px.pie(
-        names=labels,
-        values=valores,
-        title="Progresso da Projeção Alcançada",
-        hole=0.4  # Torna o gráfico um "donut"
-    )
-
-    fig_pizza.update_traces(
-        textinfo='percent+value',  # Exibe label, porcentagem e valor
-        textfont_size=15,                # Tamanho da fonte dos valores
-        hoverinfo='label+percent+value'  # Informações ao passar o mouse
-    )
-
-    # Exibir o gráfico de pizza
-    st.plotly_chart(fig_pizza)
         
         
-    fig = px.bar(df_ciclomeses, x="mes_ano", y="investimento", title="Valor Investido por Mês")
-    st.plotly_chart(fig)
+        col4,col5,col6 = st.columns([1,1,1])
         
-
-    fig_waterfall = go.Figure(go.Waterfall(
-        name="Valor Líquido", 
-        orientation="v",
-        x=df_ciclomeses['mes_ano'],  # Eixo X com meses
-        y=df_ciclomeses['valor_liquido'],  # Valores líquidos
-        textposition="outside",
-        text=df_ciclomeses['valor_liquido'].map(lambda x: f"${x:,.2f}"),
-        connector={"line":{"color":"rgb(63, 63, 63)"}},
-    ))
-
-    fig_waterfall.update_layout(
-        title="Valores Líquidos por Mês",
-        showlegend=False
-    )
-
-    # Exibir o gráfico de cascata
-    st.plotly_chart(fig_waterfall)
+        with col4:
+            with st.container(border=True):
+                st.metric(label="Porcentagem Alcançada", value=f"{porcentagem_formatada.rstrip('0').rstrip(',')}%")
+        with col5:
+            with st.container(border=True):
+                st.metric(label="Shark - Dia", value=f"{shark_porcentagem}%")
+        with col6:
+            with st.container(border=True):
+                st.metric(label="Dias", value=df_filtrado['dias'].values[0])
+           
+       
 
 def main():
     token = get_params()
@@ -187,60 +239,54 @@ def main():
         page_icon="./assets/logo.png",  # Você pode usar um emoji, URL de uma imagem ou caminho para um arquivo de imagem local
         layout="wide"
     )
-    video_html = """
-    
-        <video autoplay muted loop id="myVideo">
-		  <source src="https://videos.pexels.com/video-files/28464229/12391209_1920_1080_30fps.mp4">
-		  Your browser does not support HTML5 video.
-		</video>
+    estilo_css = """
+        
 		<style>
+       
   
         [data-testid="stHeader"]{
             background-color: rgba(0,0,0,0);
         }
         [data-testid="stSidebarContent"]{
-            background-color: #444444;
+            color: white;
+        }
+      
+        
+        [data-testid="stSidebarContent"] p {
             color: white;
         }
         
+        h1,p{
+            color: white;
+        }
+        
+        h2 {
+            color: white;
+            font-size: 1.5em;
+        }
+        
+        h3 {
+            color: white;
+            font-size: 0.8em;
+        }
+        
+        
         [data-testid="stMetricValue"] {
-            background-color: white;
-            border-radius: 10px;
-            padding: 0px;
+           color: #FFAF00;
+           font-weight: bold;
         }
 
-        
-        [data-testid="stHeadingWithActionElements"] h1{
-            color: black;
-        }
         
         [data-testid="stTable"] {
-            background-color: rgba(255,255,255,0.7);
-            border-radius: 15px;
             padding-top: 12px;
             padding-bottom: 0px;
-            box-shadow: 0 4px 6px 0 rgba(0, 0, 0,0.7);
         }
-        
-        
-        [data-testid="stMarkdownContainer"] {
-            color: black;
-        }
-
-		#myVideo {
-		  position: fixed;
-		  right: 0;
-		  bottom: -50px;
-		  min-width: 100%; 
-		  min-height: 100%;
-		}
-    
 
 		</style>	
 		
         """
 
-    st.markdown(video_html, unsafe_allow_html=True)
+    st.markdown(estilo_css, unsafe_allow_html=True)
     
     if token:
         payload = verificar_token(token)
@@ -255,10 +301,8 @@ def main():
                 
             dados_ciclomeses = api.get_ciclomeses(token)
             dados_contas = api.get_contas(token)
+        
             
-            st.sidebar.image("assets/logo2.png", use_column_width='always', width=250)
-            
-            st.header(f"Bem-vindo, {dados_user['nome']}!")
             
             if not 'admin' in st.session_state:
                 st.session_state['admin'] = False
@@ -269,7 +313,7 @@ def main():
             dashboard_selecionado = side_bar(token, dados_user)
             
             if dashboard_selecionado == "🏠 Dashboard Inicial":
-                dashboard_padrao(token, dados_ciclomeses)
+                dashboard_padrao(token, dados_ciclomeses, dados_contas)
             elif dashboard_selecionado == "📊 Dashboard do Usuário":
                 dashboard_user(token)
             elif dashboard_selecionado == "🛠 Dasboard do Administrador":

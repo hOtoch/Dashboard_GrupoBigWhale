@@ -56,4 +56,9 @@ export class LoginComponent implements  AfterViewInit{
       }
     );
   }
+
+  loginWithGoogle(){
+    const url = this.authService.loginWithGoogle();
+    window.location.href = url;
+  }
 }

@@ -1,11 +1,12 @@
-from flask import Blueprint, request, jsonify, make_response, Flask,url_for
+from flask import Blueprint, request, jsonify, make_response, Flask,url_for,session, redirect
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import create_access_token, decode_token
 from ..models import Usuario, db
 from flask_mail import Message
 from datetime import timedelta
 from .. import mail
-import requests
+from flask import current_app as app
+import os
 
 
 def send_reset_email(to, reset_link):
@@ -28,8 +29,33 @@ Equipe ROI Investimentos''',
                   sender='otochdev@gmail.com')
     mail.send(msg)
     
-    
+
 login_bp = Blueprint('login',__name__)
+
+
+
+@login_bp.route('/login/google', methods=['GET'])
+def login_google():
+    nonce = os.urandom(16).hex()
+    session['nonce'] = nonce
+    return app.extensions['authlib.integrations.flask_client'].google.authorize_redirect("http://localhost:5000/auth/callback", nonce=nonce)
+
+
+@login_bp.route('/auth/callback')
+def authorize():
+    nonce = session.pop('nonce', None)
+    if not nonce:
+        return jsonify({'erro': 'Nonce não encontrado'}), 400
+    
+    token = app.extensions['authlib.integrations.flask_client'].google.authorize_access_token()
+    user_info = app.extensions['authlib.integrations.flask_client'].google.parse_id_token(token, nonce=nonce, claims_options={"iat": {"leeway": 60}})
+    user = Usuario.query.filter_by(email=user_info['email']).first()
+    if not user:
+        user = Usuario(nome=user_info['name'], email=user_info['email'])
+        db.session.add(user)
+        db.session.commit()
+    access_token = create_access_token(identity=user.id)
+    return redirect(f"http://localhost:8501?token={access_token}")
 
 @login_bp.route('/login', methods =['POST'])
 def login():

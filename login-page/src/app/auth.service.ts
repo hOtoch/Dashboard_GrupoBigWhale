@@ -23,6 +23,10 @@ export class AuthService {
     );
   }
 
+  loginWithGoogle(): string {
+    return `${this.apiUrl}/login/google`;
+  }
+
   verificaEmail(email: string): Observable<{ message: string }> {
     const url = `${this.apiUrl}/verify_email`;
     return this.http.post<{ message: string }>(url, { email });

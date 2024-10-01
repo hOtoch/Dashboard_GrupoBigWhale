@@ -249,6 +249,7 @@ def main():
         }
         [data-testid="stSidebarContent"]{
             color: white;
+            background-color: #1E1E1E;
         }
       
         

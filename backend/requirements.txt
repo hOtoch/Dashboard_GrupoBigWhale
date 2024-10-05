@@ -6,3 +6,5 @@ Flask-JWT-Extended
 flask-cors
 Flask-Mail
 gunicorn
+pyotp
+qrcode

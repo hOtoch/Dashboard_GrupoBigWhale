@@ -164,14 +164,7 @@ def dashboard_padrao(token, dados_ciclomeses, dados_contas):
     shark_porcentagem = (df_filtrado['shark'].values[0]) * 100
     
     df_contas = pd.DataFrame(dados_contas)
-
-    
-    
-    
-    
-
-            
-            
+   
     col1,col2,col3 = st.columns([1,1,1])
     
     with col1:

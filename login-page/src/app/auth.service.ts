@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { LoginResponse } from './models/login-response.model';
+import { AuthenticatorResponse } from './models/login-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -23,9 +24,18 @@ export class AuthService {
     );
   }
 
-  loginWithGoogle(): string {
-    return `${this.apiUrl}/login/google`;
+  setupAuthenticator(email: string): Observable<AuthenticatorResponse> {
+    const url = `${this.apiUrl}/authenticator/setup`;
+    return this.http.post<AuthenticatorResponse>(url, {'email': email});
   }
+
+  verifyAuthenticator(email: string, user_code: string): Observable<{ message: string }> {
+    const url = `${this.apiUrl}/authenticator/verify`;
+    return this.http.post<{ message: string }>(url, { email, user_code });
+  }
+
+
+
 
   verificaEmail(email: string): Observable<{ message: string }> {
     const url = `${this.apiUrl}/verify_email`;

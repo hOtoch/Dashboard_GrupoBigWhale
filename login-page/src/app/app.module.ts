@@ -7,6 +7,8 @@ import { LoginComponent } from './login/login.component';
 import { HttpClientModule } from '@angular/common/http';
 import { EsqueciMinhaSenhaComponent } from './esqueci-minha-senha/esqueci-minha-senha.component';
 import { ResetarSenhaComponent } from './resetar-senha/resetar-senha.component';
+import { ModalQrcodeComponent } from './modal-qrcode/modal-qrcode.component';
+import { ModalCodeComponent } from './modal-code/modal-code.component';
 
 
 @NgModule({
@@ -14,7 +16,9 @@ import { ResetarSenhaComponent } from './resetar-senha/resetar-senha.component';
     AppComponent,
     LoginComponent,
     EsqueciMinhaSenhaComponent,
-    ResetarSenhaComponent
+    ResetarSenhaComponent,
+    ModalQrcodeComponent,
+    ModalCodeComponent
   ],
   imports: [
     BrowserModule,

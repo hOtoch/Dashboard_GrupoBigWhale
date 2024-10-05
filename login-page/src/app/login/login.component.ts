@@ -13,6 +13,10 @@ export class LoginComponent implements  AfterViewInit{
   email: string = '';
   password: string = '';
   errorMessage: string = '';
+  isModalQrCodeOpen: boolean = false;
+  isModalCodeOpen: boolean = false;
+  qrCodeBase64: string = '';
+  token : string = '';
 
 
   constructor(private authService: AuthService, private router: Router) { }
@@ -47,9 +51,26 @@ export class LoginComponent implements  AfterViewInit{
 
     this.authService.login(loginData).subscribe(
       (response: LoginResponse) => {  
-        const token = this.authService.getToken();  // Obtém o token do login
+        this.token = this.authService.getToken() ?? '';  // Obtém o token do login
         this.errorMessage = '';
-        window.location.href = `http://localhost:8501?token=${token}`;
+
+        const authenticator_response = this.authService.setupAuthenticator(loginData.email).subscribe(
+          (response) => {
+            if (!response.qr_code) {
+              // Usuário já configurou o Authenticator
+              this.email = loginData.email;
+              this.isModalCodeOpen = true;
+            }else{
+              this.qrCodeBase64 = `data:image/png;base64,${response.qr_code}`;
+              this.isModalQrCodeOpen = true;
+            }
+            
+          },
+          (error) => {
+            console.log('Erro ao configurar o Authenticator:', error);
+          }
+        );
+
       },
       (error) => {
         this.errorMessage = 'Dados de login inválidos';
@@ -57,8 +78,17 @@ export class LoginComponent implements  AfterViewInit{
     );
   }
 
-  loginWithGoogle(){
-    const url = this.authService.loginWithGoogle();
-    window.location.href = url;
+  closeQrCodeModal(): void {
+    this.isModalQrCodeOpen = false;
   }
+
+  closeCodeModal(): void {
+    this.isModalCodeOpen = false;
+  }
+
+  openModalCode(): void {
+    this.isModalQrCodeOpen = false;
+    this.isModalCodeOpen = true;
+  }
+
 }

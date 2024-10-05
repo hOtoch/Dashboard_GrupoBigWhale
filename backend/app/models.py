@@ -7,6 +7,8 @@ class Usuario(db.Model):
     email = db.Column(db.String(100), nullable=False, unique=True)
     senha_hash = db.Column(db.String(255), nullable=False)
     tipo_usuario = db.Column(db.String(20), nullable=False)
+    authenticator_secret = db.Column(db.String(100), nullable=True)
+    authenticated = db.Column(db.Boolean, nullable=False, default=False)
 
 class Conta(db.Model):
     __tablename__ = 'contas'

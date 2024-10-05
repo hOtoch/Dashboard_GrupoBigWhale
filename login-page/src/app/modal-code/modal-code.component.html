@@ -1,0 +1,21 @@
+<div class="modal-overlay" (click)="onCloseModal()"></div>
+<div class="modal-container">
+  <div class="modal-header">
+    <h1>Verificação de Código</h1>
+    <button class="close-button" (click)="onCloseModal()">✕</button>
+  </div>
+  <div class="modal-body">
+    <h2>Digite o código gerado pelo Google Authenticator</h2>
+    <div class="input-group">
+      <label for="authenticatorCode">Código de Verificação</label>
+      <input type="text" id="authenticatorCode" [(ngModel)]="authenticatorCode" placeholder="Ex: 123456" maxlength="6" required>
+    </div>
+    <button class="btn-verify" (click)="verifyAuthenticatorCode()">Verificar Código</button>
+    <div *ngIf="verificationMessage" class="verification-message">
+      {{ verificationMessage }}
+    </div>
+  </div>
+</div>
+
+
+  

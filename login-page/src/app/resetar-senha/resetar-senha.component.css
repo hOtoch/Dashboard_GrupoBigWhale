@@ -16,11 +16,13 @@ html, body {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
     z-index: -1;
     overflow: hidden;
 }
+
 
 #video-background {
     width: 100%;
@@ -30,35 +32,40 @@ html, body {
 
 /* Estilos para o container de login */
 .login-container {
+    overflow: hidden; 
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
+    align-items: flex-start;
+    padding-top: 5rem;
+    height: calc(100vh - 5rem); 
+    box-sizing: border-box;
     z-index: 1;
+    width: 100%;
 }
 
 /* Estilos para o card de login */
 .login-card {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    background-color: rgb(18,18,18);
-    padding: 3rem;
-    border-radius: 0.625rem;
-    box-shadow: 0.5rem 1rem 2rem rgb(0, 0, 0);
-    width: 40vw;
-    max-width: 30rem;
-    min-width: 18rem;
-    text-align: center;
+    justify-content: center;
+    background-color: rgba(18, 18, 18,0.9);
+    padding: 1rem;
+    border-radius: 1rem;
+    border: 1px solid #159e5a;
+    width: 90%;
+    max-width: 600px;
     margin: 0 auto;
+    text-align: center;
+    transform: scale(1); 
+    transition: transform 0.3s ease-in-out; 
 }
 
 /* Estilos para a imagem dentro do card de login */
 .login-card__img {
-    border-radius: 10px;
-    padding: 10px;
-    width: 20vw;
-    margin: 0 auto;
+    width: 50%;
+    max-width: 200px;
+    height: auto;
+    margin: 0 auto 1rem auto;
 }
 
 /* Cabeçalho da seção de login com linha superior */
@@ -95,10 +102,10 @@ html, body {
 
 /* Agrupamento de inputs */
 .input-group {
-    margin-bottom: 1.2rem;
-    margin-left: -1rem;
-    padding: 0 1.2rem;
+    margin-bottom: 1.2rem; 
+    padding: 0;
 }
+
 
 /* Estilos dos labels */
 label {
@@ -143,16 +150,17 @@ input {
 
 /* Estilos do botão de login */
 .btn-login {
-    padding: 0.625rem;
+    padding: 1rem; 
     background-color: white;
     color: black;
     border: none;
-    border-radius: 0.3125rem;
+    border-radius: 1rem; 
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 1rem; 
     font-weight: 600;
-    margin-top: 2rem;
-    margin-left: -1rem;
+    margin-top: 2rem; 
+    width: 30%;
+    box-sizing: border-box;
     transition: background-color 0.3s;
 }
 
@@ -177,20 +185,42 @@ input {
     color: #159e5a;
 }
 
-/* Estilos responsivos */
+@media (max-width: 800px){
+    .login-container{
+        height: calc(100vh - 2.5rem);
+        padding-top: 2.5rem; /* Ajusta o padding para telas menores */
+    }
+}
+
 @media (max-width: 600px) {
+    
     .login-card {
-        padding: 1.5rem;
+        padding: 1rem;
         width: 90%;
         max-width: none;
-        min-width: auto;
+    }
+    .login-card__img {
+        width: 60%;
+        max-width: 150px;
+    }
+    .login-title {
+        font-size: 1.5rem;
+    }
+    .login-paragraph {
+        font-size: 1rem;
+    }
+    label, input, .btn-login {
+        font-size: 1rem;
+    }
+    .input-group {
+        margin-bottom: 1rem;
     }
 }
 
 @media (max-width: 400px) {
     .login-card {
         padding: 0.5rem;
-        width: 100%;
+        width: 80%;
     }
     .login-card__img {
         width: 80%;
@@ -203,13 +233,106 @@ input {
         font-size: 0.9rem;
     }
     .btn-login {
-        padding: 0.5rem;
+        width: auto;
     }
     .input-group {
         margin-bottom: 0.8rem;
         padding: 0;
     }
-    input{
+}
+
+@media (min-width: 2000px) {
+    .login-card {
+        padding: 2rem;
         width: 80%;
+        max-width: 1200px;
+    }
+    .login-card__img {
+        width: 50%;
+        max-width: 300px;
+    }
+    .login-title {
+        font-size: 3rem;
+    }
+    .login-paragraph {
+        font-size: 1.5rem;
+    }
+    label, input, .btn-login, a {
+        font-size: 2rem;
+    }
+    .input-group {
+        margin-bottom: 2rem;
+    }
+    .btn-login {
+        width: 15%;
+    }
+
+}
+
+@media (max-height: 900px) {
+    .login-container{
+        height: calc(100vh - 1.5rem);
+        padding-top: 1.5rem; /* Ajusta o padding para telas menores */
+    }
+    .login-card {
+        transform: scale(0.9); /* Reduz o tamanho do card */
+        
+    }
+
+}
+
+@media (max-height: 700px) {
+    .login-container{
+        height: calc(100vh - 1rem);
+        padding-top: 1rem; /* Ajusta o padding para telas menores */
+    }
+    .login-card {
+        transform: scale(0.8); /* Reduz o tamanho do card */
+        
+    }
+    .login-title, .login-paragraph, label, input, .btn-login {
+        font-size: 0.9rem; /* Reduz tamanho de fonte */
+    }
+}
+
+@media (max-height: 600px) {
+    .login-container{
+        height: calc(100vh - 0.7rem);
+        padding-top: 0.7rem; /* Ajusta o padding para telas menores */
+    }
+    .login-card {
+        transform: scale(0.8); /* Reduz o tamanho do card */
+        
+    }
+    .login-title, .login-paragraph, label, input, .btn-login {
+        font-size: 0.9rem; /* Reduz tamanho de fonte */
+    }
+}
+
+@media (max-height: 500px) {
+    .login-container {
+        height: calc(100vh - 0.5rem);;
+        padding-top: 0.5rem; /* Ajusta padding para telas menores */
+    }
+    .login-card {
+        transform: scale(0.7); /* Reduz mais para alturas menores */
+    }
+    .login-title, .login-paragraph, label, input, .btn-login {
+        font-size: 0.8rem; /* Ajusta fontes */
+    }
+}
+
+/* Ajuste para telas menores que 400px de altura */
+@media (max-height: 400px) {
+    .login-container {
+        height: 100vh;
+        padding-top: 0; /* Ajusta padding para telas menores */
+    }
+    .login-card {
+        transform: scale(0.6); /* Reduz tamanho do card */
+        margin: 0
+    }
+    .login-card__img {
+        display: none; /* Oculta a imagem */
     }
 }

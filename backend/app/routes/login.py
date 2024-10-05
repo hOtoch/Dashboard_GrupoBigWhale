@@ -1,12 +1,14 @@
-from flask import Blueprint, request, jsonify, make_response, Flask,url_for,session, redirect
+from flask import Blueprint, request, jsonify, make_response
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import create_access_token, decode_token
 from ..models import Usuario, db
 from flask_mail import Message
 from datetime import timedelta
+from io import BytesIO
+import pyotp
+import qrcode
+import base64
 from .. import mail
-from flask import current_app as app
-import os
 
 
 def send_reset_email(to, reset_link):
@@ -32,30 +34,6 @@ Equipe ROI Investimentos''',
 
 login_bp = Blueprint('login',__name__)
 
-
-
-@login_bp.route('/login/google', methods=['GET'])
-def login_google():
-    nonce = os.urandom(16).hex()
-    session['nonce'] = nonce
-    return app.extensions['authlib.integrations.flask_client'].google.authorize_redirect("http://localhost:5000/auth/callback", nonce=nonce)
-
-
-@login_bp.route('/auth/callback')
-def authorize():
-    nonce = session.pop('nonce', None)
-    if not nonce:
-        return jsonify({'erro': 'Nonce não encontrado'}), 400
-    
-    token = app.extensions['authlib.integrations.flask_client'].google.authorize_access_token()
-    user_info = app.extensions['authlib.integrations.flask_client'].google.parse_id_token(token, nonce=nonce, claims_options={"iat": {"leeway": 60}})
-    user = Usuario.query.filter_by(email=user_info['email']).first()
-    if not user:
-        user = Usuario(nome=user_info['name'], email=user_info['email'])
-        db.session.add(user)
-        db.session.commit()
-    access_token = create_access_token(identity=user.id)
-    return redirect(f"http://localhost:8501?token={access_token}")
 
 @login_bp.route('/login', methods =['POST'])
 def login():
@@ -141,6 +119,65 @@ def reset_password(token):
 
     # Se for uma requisição GET, você pode retornar uma mensagem ou renderizar um formulário (caso queira exibir uma página)
     return jsonify({'message': 'Insira sua nova senha.'}), 200
+
+@login_bp.route('/authenticator/setup', methods=['POST'])
+def setup():
+    email = request.json.get('email')
+    
+    user = Usuario.query.filter_by(email=email).first()
+    
+    if not user:
+        return jsonify({'erro':'Usuário não encontrado'}),404
+    
+    if user.authenticated:
+        return jsonify({'message':'Authenticator já configurado'}),200
+    
+    # cria um segredo unico
+    secret = pyotp.random_base32()
+    
+    user.authenticator_secret = secret
+    
+    totp = pyotp.TOTP(secret)
+    
+    # cria a URL para ser autenticada no Google Authenticator
+    otp_uri = totp.provisioning_uri(name=email, issuer_name='ROI Investimentos')
+    
+    qr_code = qrcode.make(otp_uri)
+    buffered = BytesIO()
+    qr_code.save(buffered, format='PNG')
+    
+    qr_code_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+    
+    db.session.commit()
+  
+    
+    return jsonify({
+        'secret': secret,
+        'qr_code': qr_code_base64,
+        'message':f'QR Code gerado para o usuário {email}'
+    }), 200
+    
+@login_bp.route('/authenticator/verify', methods=['POST'])
+def verify():
+    email = request.json.get('email')
+    user_code = request.json.get('user_code')
+    
+    user = Usuario.query.filter_by(email=email).first()
+    
+    secret = user.authenticator_secret 
+    
+    totp = pyotp.TOTP(secret)
+    
+    print(totp.now())
+    print(user_code)
+    
+    
+    if totp.verify(user_code):
+        user.authenticated = True
+        db.session.commit()
+        return jsonify({'message':'Código válido, login bem-sucedido!'}), 200
+    else:
+        return jsonify({'erro':'Código inválido'}), 400
 
 
 

@@ -5,28 +5,23 @@ from dotenv import load_dotenv
 import os
 from datetime import timedelta
 from flask_mail import Mail
-from authlib.integrations.flask_client import OAuth
+
 
 # Carregar variáveis de ambiente do arquivo .env
 load_dotenv()
-mail = Mail()
+
 
 # Inicializar SQLAlchemy
 db = SQLAlchemy()
 
 jwt = JWTManager()
 
+mail = Mail()
+
 def create_app():
     app = Flask(__name__)
     app.secret_key = os.getenv('FLASK_SECRET_KEY')
-    oauth = OAuth(app)
-    google = oauth.register(
-        name='google',
-        client_id=os.getenv("GOOGLE_CLIENT_ID"),
-        client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
-        server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-        client_kwargs={'scope': 'openid profile email'}
-    )
+ 
     
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
     app.config['MAIL_PORT'] = 587
@@ -48,6 +43,8 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     mail.init_app(app)
+    
+ 
     
     from .routes import register_blueprints
     register_blueprints(app)

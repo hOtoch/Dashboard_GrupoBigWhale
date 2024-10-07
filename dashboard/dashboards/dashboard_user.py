@@ -99,6 +99,8 @@ def deposito_saques_chart(df_contas):
     st.bar_chart(df_saques[['deposito_inicial', 'saques', 'liquido']], color=['#FFAF00', '#F5004F', '#7C00FE'], x_label="Contas", y_label="Valores ($)")
     
 def formatar_valores(valor):
+    if pd.isna(valor):
+        return "-"
     return f"${locale.format_string('%.2f', valor, grouping=True).rstrip('0').rstrip(',')}"
     
 def tabela_resumo_contas(df_contas):

@@ -28,6 +28,9 @@ Este projeto é um sistema de dashboard financeiro desenvolvido para a **ROI Inv
 
   
 - **Controle de Acesso:** Usuários administradores têm acesso a todos os dados; usuários comuns visualizam apenas suas próprias contas.
+
+![image](https://github.com/user-attachments/assets/2c0aaf44-9d5c-4a7d-8162-1034b06d1e17)
+
 - **Filtros Dinâmicos:** Filtragem por nome, plano e meses.
 
 ## Autenticação com Google Authenticator

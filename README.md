@@ -15,7 +15,7 @@ Este projeto é um sistema de dashboard financeiro desenvolvido para a **ROI Inv
 ## Funcionalidades
 - **Autenticação Segura:** Login com autenticação de dois fatores via Google Authenticator.
   
-  ![image](https://github.com/user-attachments/assets/b6130a87-8a1f-497a-a85f-7c469a8f1a61)
+![image](https://github.com/user-attachments/assets/b6130a87-8a1f-497a-a85f-7c469a8f1a61)
 
 ![image](https://github.com/user-attachments/assets/86885fa5-53b1-4653-b434-6518d7341271)
 
